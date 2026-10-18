@@ -78,3 +78,4 @@ curl -X PUT http://<시계IP>/api/v1/apps/pushed/solar \
 - 신호 세기가 약했다(`wifiRssi` -84). 요청 실패가 잦으면 시계 위치를 조정한다.
 - 표시 형식은 kW가 아니라 W 단위(`2300W`)로 결정.
 - 전송 테스트 성공(`{"ok":true}`).
+- 아이콘: `icon`의 data URL은 GIF/JPEG만 허용(PNG는 거부). 8x8 번개 GIF(`assets/bolt.gif`)를 `POST /api/v1/files?dir=/ICONS`로 업로드하고 `"icon":"bolt"`로 사용한다 (`scripts/upload-icon.sh`). 재플래시하면 지워진다.

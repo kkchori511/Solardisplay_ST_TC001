@@ -9,5 +9,5 @@ WATTS="${1:?사용법: $0 <와트 정수>}"
 
 curl -sS -m 8 -X PUT "http://${CLOCK_IP}/api/v1/apps/pushed/solar" \
   -H "Content-Type: application/json" \
-  -d "{\"text\":\"${WATTS}W\",\"textColor\":\"#FFD700\",\"lifetimeMs\":120000,\"lifetimeExpiry\":\"mark\"}"
+  -d "{\"text\":\"${WATTS}W\",\"icon\":\"bolt\",\"textColor\":\"#FFD700\",\"lifetimeMs\":120000,\"lifetimeExpiry\":\"mark\"}"
 echo
