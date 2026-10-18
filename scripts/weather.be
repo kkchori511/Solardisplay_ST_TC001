@@ -13,7 +13,7 @@ import math
 class Weather
   var key, busy, step, wait_s, retry_in, last_hour_key, age_s, ready
   var cat, times, vals, ncst_temp, ncst_pty
-  var icon_name, temp_text, pop_text, temp_x, pop_x, umb_x, umb
+  var icon_name, temp_text, pop_text, temp_x, pop_x, umb_x, umb, neg, minus_x
 
   def init()
     self.key = store.get("kma_key", "")
@@ -33,6 +33,8 @@ class Weather
     self.temp_text = ""
     self.pop_text = ""
     self.temp_x = 9
+    self.neg = false
+    self.minus_x = 9
     self.pop_x = 25
     self.umb_x = 19
     # 우산 모양 [열, 행]
@@ -332,11 +334,21 @@ class Weather
     if pop < 0
       pop = 0
     end
+    self.neg = temp < 0
+    if self.neg
+      temp = -temp
+    end
     self.temp_text = str(temp)
     self.pop_text = str(pop)
-    # 기온이 3글자(-10 이하)면 우산과 겹치므로 한 칸 왼쪽으로
-    if size(self.temp_text) >= 3
-      self.temp_x = 8
+    if self.neg
+      # 마이너스는 글자(3칸+간격) 대신 2칸 선으로 그려 우산과 붙지 않게 한다.
+      # 숫자가 2자리면 한 칸 왼쪽(x=8)에서 시작: 선 8-9, 간격 10, 숫자 11-17, 우산 19~
+      if size(self.temp_text) >= 2
+        self.minus_x = 8
+      else
+        self.minus_x = 9
+      end
+      self.temp_x = self.minus_x + 3
     else
       self.temp_x = 9
     end
@@ -398,7 +410,11 @@ class Weather
     if !icon(self.icon_name, 0, 0)
       rect_fill(0, 0, 8, 8, 0x222222)
     end
-    text(self.temp_x, 6, self.temp_text, 0xFFFFFF)
+    if self.neg
+      pixel(self.minus_x, 3, 0xFFA500)
+      pixel(self.minus_x + 1, 3, 0xFFA500)
+    end
+    text(self.temp_x, 6, self.temp_text, 0xFFA500)
     for p: self.umb
       pixel(self.umb_x + p[0], p[1], 0x3C8CFF)
     end
