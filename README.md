@@ -29,3 +29,7 @@ Ulanzi TC001 픽셀 시계에 SmartThings 태양광 출력(W)을 표시하기 �
 - 새 기능은 브랜치에서 작업한다. 예: `weather`(날씨 표시 실험, 기상청 API 조사와 아이콘).
 - 충분히 확인한 뒤에만 `main`에 합치고, 합칠 때 새 버전 태그를 붙인다.
 - 브랜치 목록: `git branch`, 이동: `git checkout <이름>`, 새로 만들기: `git checkout -b <이름>`.
+
+## 비밀 정보 보호
+- 인증키는 `.env.local`에만 둔다. `.gitignore`가 `.env*`, `*.local`을 막는다.
+- 커밋 직전 검사: `scripts/pre-commit-secrets.sh`를 `.git/hooks/pre-commit`에 복사해 설치한다 (`cp scripts/pre-commit-secrets.sh .git/hooks/pre-commit`). 비밀 파일 이름이나 키처럼 보이는 문자열이 있으면 커밋을 막는다. 새로 클론하면 다시 설치해야 한다.
