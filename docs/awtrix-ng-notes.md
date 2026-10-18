@@ -79,3 +79,4 @@ curl -X PUT http://<시계IP>/api/v1/apps/pushed/solar \
 - 표시 형식은 kW가 아니라 W 단위(`2300W`)로 결정.
 - 전송 테스트 성공(`{"ok":true}`).
 - 아이콘: `icon`의 data URL은 GIF/JPEG만 허용(PNG는 거부). 8x8 번개 GIF(`assets/bolt.gif`)를 `POST /api/v1/files?dir=/ICONS`로 업로드하고 `"icon":"bolt"`로 사용한다 (`scripts/upload-icon.sh`). 재플래시하면 지워진다.
+- 빨간 테두리: `lifetimeExpiry:"mark"`가 갱신 없이 `lifetimeMs`가 지나면 켜는 "오래된 값" 표시다. 사용자 요청으로 수명 설정(`lifetimeMs`, `lifetimeExpiry`)을 전송에서 뺐다. 대신 허브가 멈춰도 마지막 값이 계속 보인다.
