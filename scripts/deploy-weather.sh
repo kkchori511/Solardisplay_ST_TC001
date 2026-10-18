@@ -20,5 +20,5 @@ curl -sS -m 20 -X PUT "http://$CLOCK_IP/api/v1/apps/script/weather" -H "Content-
 echo "3) 인증키 설정"
 printf '{"kma_key":"%s"}' "$KEY" | curl -sS -m 20 -X PATCH "http://$CLOCK_IP/api/v1/apps/weather/config" -H "Content-Type: application/json" --data-binary @- | mask; echo
 
-echo "4) 앱 표시 시간 기본 10초 (날씨는 스크립트에서 5초)"
-curl -sS -m 10 -X PATCH "http://$CLOCK_IP/api/v1/settings" -H "Content-Type: application/json" -d '{"appDurationMs":10000}' | python3 -I -c 'import sys,json; d=json.load(sys.stdin); print("   appDurationMs =", d.get("appDurationMs", d))'
+echo "4) 앱 표시 시간 기본 50초 (태양광), 날씨는 스크립트에서 10초"
+curl -sS -m 10 -X PATCH "http://$CLOCK_IP/api/v1/settings" -H "Content-Type: application/json" -d '{"appDurationMs":50000}' | python3 -I -c 'import sys,json; d=json.load(sys.stdin); print("   appDurationMs =", d.get("appDurationMs", d))'

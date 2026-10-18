@@ -398,7 +398,7 @@ class Weather
   end
 
   def duration()
-    return 5000
+    return 10000
   end
 
   def draw()
