@@ -1,0 +1,10 @@
+# 펌웨어 백업/바이너리 (용량 크고 개인 기기 데이터)
+*.bin
+
+# 비밀 정보
+.env
+*.secret
+secrets/
+
+# macOS
+.DS_Store
