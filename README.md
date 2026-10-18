@@ -1,5 +1,7 @@
 # Solardisplay_ST_TC001
 
+**현재 버전: v1.0** — AWTRIX NG 설치, 시간대/메뉴 설정, 태양광 값 표시(번개, 구간별 색, 막대)까지 완성한 안정 버전.
+
 Ulanzi TC001 픽셀 시계에 SmartThings 태양광 출력(W)을 표시하기 위한 시계(펌웨어) 쪽 작업 레포.
 
 ## 구성
@@ -21,3 +23,13 @@ Ulanzi TC001 픽셀 시계에 SmartThings 태양광 출력(W)을 표시하기 �
 - 표시 형식: W 단위 정수 (예: `2300W`)
 - 테스트: `scripts/send-solar.sh 2300`
 - 다음: 드라이버 레포에서 전송 코드 작성. API는 AWTRIX 3와 다르게 `PUT /api/v1/apps/pushed/solar`를 쓴다 ([조사 노트](docs/awtrix-ng-notes.md)).
+
+## 버전과 브랜치 규칙
+- `main`: 안정 버전만 둔다. 현재 **v1.0** (git 태그 `v1.0`).
+- 새 기능은 브랜치에서 작업한다. 예: `weather`(날씨 표시 실험, 기상청 API 조사와 아이콘).
+- 충분히 확인한 뒤에만 `main`에 합치고, 합칠 때 새 버전 태그를 붙인다.
+- 브랜치 목록: `git branch`, 이동: `git checkout <이름>`, 새로 만들기: `git checkout -b <이름>`.
+
+## 비밀 정보 보호
+- 인증키는 `.env.local`에만 둔다. `.gitignore`가 `.env*`, `*.local`을 막는다.
+- 커밋 직전 검사: `scripts/pre-commit-secrets.sh`를 `.git/hooks/pre-commit`에 복사해 설치한다 (`cp scripts/pre-commit-secrets.sh .git/hooks/pre-commit`). 비밀 파일 이름이나 키처럼 보이는 문자열이 있으면 커밋을 막는다. 새로 클론하면 다시 설치해야 한다.
