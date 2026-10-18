@@ -80,3 +80,10 @@ curl -X PUT http://<시계IP>/api/v1/apps/pushed/solar \
 - 전송 테스트 성공(`{"ok":true}`).
 - 아이콘: `icon`의 data URL은 GIF/JPEG만 허용(PNG는 거부). 8x8 번개 GIF(`assets/bolt.gif`)를 `POST /api/v1/files?dir=/ICONS`로 업로드하고 `"icon":"bolt"`로 사용한다 (`scripts/upload-icon.sh`). 재플래시하면 지워진다.
 - 빨간 테두리: `lifetimeExpiry:"mark"`가 갱신 없이 `lifetimeMs`가 지나면 켜는 "오래된 값" 표시다. 사용자 요청으로 수명 설정(`lifetimeMs`, `lifetimeExpiry`)을 전송에서 뺐다. 대신 허브가 멈춰도 마지막 값이 계속 보인다.
+- 시간대: `PUT /api/v1/system` 본문 `{"tz":"KST-9","tzName":"Asia/Seoul"}` (부분 갱신, 재부팅 불필요). 기본값은 유럽(CET)이라 한국과 시각이 어긋난다.
+- 메뉴 축소: 내장 앱을 끄고 `solar`만 남겼다. 본문은 객체가 아니라 `true`/`false` 값 자체다.
+  ```
+  curl -X PUT http://192.168.0.12/api/v1/apps/Time/enabled -H "Content-Type: application/json" -d false
+  ```
+  대상: `Time`, `Date`, `Temperature`, `Humidity`, `Battery`. 다시 켜려면 `-d true`.
+- 푸시 앱 `solar`는 시계가 재부팅되면 사라진다. 드라이버가 15초마다 다시 보내므로 곧 복구된다. 내장 앱 끄기 설정이 재부팅 뒤에도 유지되는지는 확인하지 못했다.
