@@ -5,7 +5,7 @@
 # 기상청 초단기 날씨(김포시 마산동, 격자 54/128)를 가져와 아이콘, 기온, 우산, 강수확률을 표시한다.
 # 매시 50분에 한 번 갱신한다 (초단기실황은 40분, 초단기예보는 45분 이후 제공).
 # 응답이 8KB를 넘으므로 필요한 항목(SKY, PTY, POP, LGT)만 find/keep으로 골라 받는다.
-# 화면: [날씨 아이콘 0-7] 기온(x=11~) 우산(3칸) 확률(오른쪽 끝)
+# 화면: [날씨 아이콘 0-7] 기온(x=10~) 우산(4칸) 확률(오른쪽 끝)
 
 import json
 import math
@@ -32,13 +32,13 @@ class Weather
     self.icon_name = "cloudy"
     self.temp_text = ""
     self.pop_text = ""
-    self.temp_x = 11
+    self.temp_x = 10
     self.neg = false
-    self.minus_x = 11
+    self.minus_x = 10
     self.pop_x = 25
-    self.umb_x = 21
-    # 우산 모양 [열, 행] (3칸 폭)
-    self.umb = [[1,1],[0,2],[1,2],[2,2],[1,3],[1,4],[0,5],[1,5]]
+    self.umb_x = 20
+    # 우산 모양 [열, 행] (4칸 폭)
+    self.umb = [[1,1],[2,1],[0,2],[1,2],[2,2],[3,2],[2,3],[2,4],[1,5],[2,5]]
   end
 
   # ---------- 날짜/시간 계산 ----------
@@ -342,18 +342,18 @@ class Weather
     self.pop_text = str(pop)
     if self.neg
       # 마이너스는 글자(3칸+간격) 대신 2칸 선으로 그린다.
-      # 숫자 2자리: 선 10-11, 간격 12, 숫자 13-19, 한 칸(20) 비우고 우산 21~23
+      # 숫자 2자리: 선 9-10, 간격 11, 숫자 12-18, 한 칸(19) 비우고 우산 20~23
       if size(self.temp_text) >= 2
-        self.minus_x = 10
+        self.minus_x = 9
       else
-        self.minus_x = 11
+        self.minus_x = 10
       end
       self.temp_x = self.minus_x + 3
     else
-      self.temp_x = 11
+      self.temp_x = 10
     end
     self.pop_x = 32 - (4 * size(self.pop_text) - 1)
-    self.umb_x = self.pop_x - 1 - 3
+    self.umb_x = self.pop_x - 1 - 4
     self.ready = true
   end
 
