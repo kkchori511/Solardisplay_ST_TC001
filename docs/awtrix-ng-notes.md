@@ -69,3 +69,12 @@ curl -X PUT http://<시계IP>/api/v1/apps/pushed/solar \
 ## 6. 아직 못 읽은 것
 - `esp32/reference/http/` 문서 뒷부분(약 41,000자), Errors, Limits, Sound 페이지
 - v1.2.2 릴리스 노트 본문
+
+## 7. 작업 기록 (2026-10-18)
+- 순정 백업: `~/projects/backups/tc001_factory.bin` (4MB, SHA-256 앞 16자 `837bd6329dae6b53`). 레포에는 올리지 않는다.
+- 플래시: `usb-awtrix-ng-4mb.bin` (v1.2.2), `0x0`, 115200, `Hash of data verified.` 확인.
+- 시계가 부팅 직후 연결하면 부팅음이 멈추지 않는 경우가 있어, 플래시/읽기 전에 약 30초 대기한다.
+- Wi-Fi: `DaDa 2.4G` 연결, IP `192.168.0.12` 고정. 호스트 이름 `tc001`.
+- 신호 세기가 약했다(`wifiRssi` -84). 요청 실패가 잦으면 시계 위치를 조정한다.
+- 표시 형식은 kW가 아니라 W 단위(`2300W`)로 결정.
+- 전송 테스트 성공(`{"ok":true}`).
