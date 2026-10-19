@@ -6,6 +6,8 @@
 # 매시 50분에 한 번 갱신한다 (초단기실황은 40분, 초단기예보는 45분 이후 제공).
 # 응답이 8KB를 넘으므로 필요한 항목(SKY, PTY, POP, LGT)만 find/keep으로 골라 받는다.
 # 화면: [날씨 아이콘 0-7] 기온(x=10~) 우산(4칸) 확률(오른쪽 끝)
+# 가운데 버튼: 오늘 최저(파랑)/최고(빨강) 기온 화면으로 바꾼다 (5초 뒤 또는 다시 누르면 돌아옴).
+# 최저/최고는 단기예보(getVilageFcst) 02시 발표 자료에서 하루 한 번 받는다.
 
 import json
 import math
@@ -14,6 +16,7 @@ class Weather
   var key, busy, step, wait_s, retry_in, last_hour_key, age_s, ready
   var cat, times, vals, ncst_temp, ncst_pty
   var icon_name, temp_text, pop_text, temp_x, pop_x, umb_x, umb, neg, minus_x
+  var mm_ready, mm_busy, mm_step, mm_wait, mm_retry, mm_date, mm_cat, mm_tmn, mm_tmx, mm_view, mm_view_s
 
   def init()
     self.key = store.get("kma_key", "")
@@ -39,6 +42,17 @@ class Weather
     self.umb_x = 20
     # 우산 모양 [열, 행] (4칸 폭)
     self.umb = [[1,1],[2,1],[0,2],[1,2],[2,2],[3,2],[2,3],[2,4],[1,5],[2,5]]
+    self.mm_ready = false
+    self.mm_busy = false
+    self.mm_step = 0
+    self.mm_wait = 0
+    self.mm_retry = 0
+    self.mm_date = ""
+    self.mm_cat = ""
+    self.mm_tmn = 0
+    self.mm_tmx = 0
+    self.mm_view = false
+    self.mm_view_s = 0
   end
 
   # ---------- 날짜/시간 계산 ----------
@@ -357,10 +371,139 @@ class Weather
     self.ready = true
   end
 
+  # ---------- 오늘 최저/최고 기온 (단기예보) ----------
+
+  def today_str()
+    return format("%04d%02d%02d", year(), month(), day())
+  end
+
+  def mm_fetch()
+    self.mm_busy = true
+    self.mm_wait = 0
+    self.mm_step = 0
+    self.mm_request()
+  end
+
+  # 02시 발표 자료의 오늘 TMN(06시), TMX(15시)를 항목별로 받는다
+  def mm_request()
+    var rows = 100
+    self.mm_cat = "TMN"
+    if self.mm_step == 1
+      rows = 250
+      self.mm_cat = "TMX"
+    end
+    var url = self.base_url("getVilageFcst") + "&numOfRows=" + str(rows) + "&base_date=" + self.today_str() + "&base_time=0200"
+    http.get(url, / body, st -> self.on_mm(body, st), {'find': '"category":"' + self.mm_cat + '"', 'keep': 300})
+  end
+
+  def on_mm(body, st)
+    if body == nil || st != 200
+      log("weather: 최저최고 " + self.mm_cat + " 실패 status=" + str(st))
+      self.mm_finish(false)
+      return
+    end
+    var g = re.search('"fcstDate":"(\\d+)","fcstTime":"\\d+","fcstValue":"([^"]*)"', body)
+    if g == nil || g[1] != self.today_str()
+      log("weather: 최저최고 " + self.mm_cat + " 데이터 없음")
+      self.mm_finish(false)
+      return
+    end
+    if self.mm_step == 0
+      self.mm_tmn = int(round(num(g[2])))
+      self.mm_step = 1
+      self.mm_request()
+    else
+      self.mm_tmx = int(round(num(g[2])))
+      self.mm_finish(true)
+    end
+  end
+
+  def mm_finish(ok)
+    self.mm_busy = false
+    if ok
+      self.mm_ready = true
+      self.mm_date = self.today_str()
+      self.mm_retry = 0
+      log("weather: 최저최고 " + str(self.mm_tmn) + "/" + str(self.mm_tmx))
+    else
+      self.mm_retry = 300
+    end
+  end
+
+  # 부호 있는 정수의 표시 폭 (마이너스 3칸 + 글자 4칸씩, 마지막 간격 제외)
+  def num_width(v)
+    var a = v
+    var w = 0
+    if v < 0
+      a = -v
+      w = 3
+    end
+    return w + 4 * size(str(a)) - 1
+  end
+
+  def draw_num(x, v, color)
+    var a = v
+    var px = x
+    if v < 0
+      a = -v
+      pixel(x, 3, color)
+      pixel(x + 1, 3, color)
+      px = x + 3
+    end
+    text(px, 6, str(a), color)
+  end
+
+  # 화살표 3x5 (위: up=true, 아래: up=false)
+  def draw_arrow(x, up, color)
+    var pts = [[1,1],[1,2],[1,3],[0,4],[1,4],[2,4],[1,5]]
+    if up
+      pts = [[1,1],[0,2],[1,2],[2,2],[1,3],[1,4],[1,5]]
+    end
+    for p: pts
+      pixel(x + p[0], p[1], color)
+    end
+  end
+
+  # 최저/최고 화면: 아이콘 없이 [↓ 최저°] ... [↑ 최고°]. 폭이 모자라면 도(°)를 뺀다.
+  def draw_minmax()
+    var wl = 4 + self.num_width(self.mm_tmn)
+    var wr = 4 + self.num_width(self.mm_tmx)
+    var deg = (wl + wr + 1 + 6) <= 32
+    if deg
+      wl += 3
+      wr += 3
+    end
+    var xr = 32 - wr
+    self.draw_arrow(0, false, 0x3C8CFF)
+    self.draw_num(4, self.mm_tmn, 0x3C8CFF)
+    self.draw_arrow(xr, true, 0xFF4040)
+    self.draw_num(xr + 4, self.mm_tmx, 0xFF4040)
+    if deg
+      rect_fill(wl - 2, 1, 2, 2, 0x3C8CFF)
+      rect_fill(31 - 1, 1, 2, 2, 0xFF4040)
+    end
+  end
+
   # ---------- 앱 훅 ----------
 
   def loop()
     self.age_s += 1
+    if self.mm_view
+      self.mm_view_s -= 1
+      if self.mm_view_s <= 0
+        self.mm_view = false
+      end
+    end
+    if self.mm_ready && self.mm_date != self.today_str()
+      self.mm_ready = false
+    end
+    if self.mm_busy
+      self.mm_wait += 1
+      if self.mm_wait > 120
+        self.mm_busy = false
+        self.mm_retry = 300
+      end
+    end
     if self.busy
       self.wait_s += 1
       if self.wait_s > 120
@@ -379,10 +522,22 @@ class Weather
       end
       return
     end
+    if self.mm_busy
+      return
+    end
     var hk = day() * 100 + hour()
     if self.last_hour_key < 0 || (minute() >= 50 && hk != self.last_hour_key)
       self.fetch()
       return
+    end
+    # 최저/최고: 02시 발표(02:10 이후 제공)가 나온 뒤 하루 한 번
+    if !self.mm_ready && self.ready && hour() >= 3
+      if self.mm_retry > 0
+        self.mm_retry -= 1
+      else
+        self.mm_fetch()
+        return
+      end
     end
     # 낮/밤이나 시간 경과로 아이콘이 바뀔 수 있어 1분마다 다시 계산
     if self.ready && second() == 0
@@ -401,10 +556,33 @@ class Weather
     return 10000
   end
 
+  def on_button(btn)
+    if btn == "select"
+      if self.mm_view
+        self.mm_view = false
+        return true
+      end
+      if self.mm_ready
+        self.mm_view = true
+        self.mm_view_s = 5
+        return true
+      end
+    end
+    return false
+  end
+
+  def on_hide()
+    self.mm_view = false
+  end
+
   def draw()
     clear()
     if self.key == ""
       text(1, 6, "NO KEY", 0xFF0000)
+      return
+    end
+    if self.mm_view
+      self.draw_minmax()
       return
     end
     if !icon(self.icon_name, 0, 0)

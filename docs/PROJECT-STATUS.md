@@ -1,6 +1,6 @@
 # 프로젝트 현황과 이어가기 가이드
 
-작성: 2026-10-18 (v1.1 기준). 다음에 이어서 작업할 때 이 문서를 먼저 읽는다.
+작성: 2026-10-18, 2026-10-19 갱신 (TC001 v1.2, 드라이버 v1.1 기준). 다음에 이어서 작업할 때 이 문서를 먼저 읽는다.
 이 문서는 두 레포 전체를 다룬다. 드라이버 쪽 요약은 `Solardisplay_ST_Edgedriver/docs/PROJECT-STATUS.md`.
 
 ## 1. 한눈에 보기
@@ -16,7 +16,7 @@ SmartThings 허브 (4층)  ── 엣지 드라이버 "Solar Power Meter TC001" 
 
 | 레포 | 역할 | 버전 |
 |---|---|---|
-| `Solardisplay_ST_TC001` (공개) | 시계 쪽: 펌웨어 설치/설정, 시계 API, 날씨 스크립트, 아이콘, 문서 | v1.1 |
+| `Solardisplay_ST_TC001` (공개) | 시계 쪽: 펌웨어 설치/설정, 시계 API, 날씨 스크립트(가운데 버튼=최저/최고), 아이콘, 문서 | v1.2 |
 | `Solardisplay_ST_Edgedriver` | 허브 쪽: 엣지 드라이버(시계로 값 전송, 추가 정보, 월 누적) | v1.1 |
 
 - GitHub 계정 `kkchori511`. 로컬: `~/projects/Solardisplay_ST_TC001`, `~/projects/Solardisplay_ST_Edgedriver`.
@@ -129,7 +129,7 @@ SmartThings 허브 (4층)  ── 엣지 드라이버 "Solar Power Meter TC001" 
 | 드라이버 레포 `tests/README.md` | 로컬 시험 방법 |
 
 ## 9. 이어서 시작하는 순서 (제안)
-1. 두 레포에서 `git status`, `git branch`로 상태 확인 (`main`, v1.1).
+1. 두 레포에서 `git status`, `git branch`로 상태 확인 (`main`, TC001 v1.2 / 드라이버 v1.1).
 2. 시계와 허브가 살아 있는지: `curl http://192.168.0.12/api/v1/device`, `smartthings devices:status 39007be1-bf1e-40b2-9f34-9c9d318a6ce9`.
 3. 7번의 확인 항목(특히 11월 1일 이후 월 누적)부터 본다.
 4. 새 작업은 브랜치를 만들어서 시작한다.
