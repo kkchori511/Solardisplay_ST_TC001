@@ -464,18 +464,16 @@ class Weather
     end
   end
 
-  # 최저/최고 화면: 아이콘 없이 [↓ 최저°] / [↑ 최고°]. 폭이 모자라면 도(°)를 뺀다.
-  # 가운데 슬래시는 3칸 (아래 왼쪽에서 위 오른쪽으로)
+  # 최저/최고 화면: 아이콘 없이 [↓ 최저°] ... [↑ 최고°]. 폭이 모자라면 도(°)를 뺀다.
   def draw_minmax()
     var wl = 4 + self.num_width(self.mm_tmn)
     var wr = 4 + self.num_width(self.mm_tmx)
-    var deg = (wl + wr + 6 + 3) <= 32
+    var deg = (wl + wr + 1 + 6) <= 32
     if deg
       wl += 3
       wr += 3
     end
     var xr = 32 - wr
-    var sx = wl + (xr - wl - 3) / 2
     self.draw_arrow(0, false, 0x3C8CFF)
     self.draw_num(4, self.mm_tmn, 0x3C8CFF)
     self.draw_arrow(xr, true, 0xFF4040)
@@ -483,9 +481,6 @@ class Weather
     if deg
       rect_fill(wl - 2, 1, 2, 2, 0x3C8CFF)
       rect_fill(31 - 1, 1, 2, 2, 0xFF4040)
-    end
-    for p: [[0,5],[0,4],[1,3],[2,2],[2,1]]
-      pixel(sx + p[0], p[1], 0xAAAAAA)
     end
   end
 
